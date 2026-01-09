@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+todo_console/main.py
+todo_console/todo.py
+todo_console/utils.py
+todo_console.egg-info/PKG-INFO
+todo_console.egg-info/SOURCES.txt
+todo_console.egg-info/dependency_links.txt
+todo_console.egg-info/top_level.txt

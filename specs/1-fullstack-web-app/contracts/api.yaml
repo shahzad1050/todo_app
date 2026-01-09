@@ -1,0 +1,232 @@
+# API Contracts: Full-Stack Web Application
+
+## Authentication Endpoints
+
+### POST /api/auth/signup
+**Description**: Register a new user account
+**Request**:
+```json
+{
+  "email": "user@example.com",
+  "password": "securePassword123",
+  "first_name": "John",
+  "last_name": "Doe"
+}
+```
+**Response**:
+- 201: User created successfully
+```json
+{
+  "user_id": "uuid-string",
+  "email": "user@example.com",
+  "message": "Account created successfully"
+}
+```
+- 400: Invalid input data
+- 409: Email already exists
+
+### POST /api/auth/login
+**Description**: Authenticate user and create session
+**Request**:
+```json
+{
+  "email": "user@example.com",
+  "password": "securePassword123"
+}
+```
+**Response**:
+- 200: Login successful
+```json
+{
+  "user_id": "uuid-string",
+  "email": "user@example.com",
+  "message": "Login successful"
+}
+```
+- 400: Invalid input data
+- 401: Invalid credentials
+
+### POST /api/auth/logout
+**Description**: End user session
+**Response**:
+- 200: Logout successful
+```json
+{
+  "message": "Logout successful"
+}
+```
+
+## Task Management Endpoints
+
+### GET /api/users/{user_id}/tasks
+**Description**: Get all tasks for a specific user
+**Path Parameters**:
+- `user_id`: ID of the user whose tasks to retrieve
+**Response**:
+- 200: Tasks retrieved successfully
+```json
+{
+  "tasks": [
+    {
+      "id": 1,
+      "user_id": "uuid-string",
+      "title": "Complete project",
+      "description": "Finish the web application",
+      "is_completed": false,
+      "created_at": "2025-12-31T10:00:00Z",
+      "updated_at": "2025-12-31T10:00:00Z"
+    }
+  ]
+}
+```
+- 401: Unauthorized access
+- 403: User trying to access another user's tasks
+
+### POST /api/users/{user_id}/tasks
+**Description**: Create a new task for a specific user
+**Path Parameters**:
+- `user_id`: ID of the user creating the task
+**Request**:
+```json
+{
+  "title": "New task",
+  "description": "Task description (optional)"
+}
+```
+**Response**:
+- 201: Task created successfully
+```json
+{
+  "id": 1,
+  "user_id": "uuid-string",
+  "title": "New task",
+  "description": "Task description (optional)",
+  "is_completed": false,
+  "created_at": "2025-12-31T10:00:00Z",
+  "updated_at": "2025-12-31T10:00:00Z"
+}
+```
+- 400: Invalid input data
+- 401: Unauthorized access
+
+### GET /api/users/{user_id}/tasks/{task_id}
+**Description**: Get a specific task for a user
+**Path Parameters**:
+- `user_id`: ID of the user
+- `task_id`: ID of the task to retrieve
+**Response**:
+- 200: Task retrieved successfully
+```json
+{
+  "id": 1,
+  "user_id": "uuid-string",
+  "title": "New task",
+  "description": "Task description (optional)",
+  "is_completed": false,
+  "created_at": "2025-12-31T10:00:00Z",
+  "updated_at": "2025-12-31T10:00:00Z"
+}
+```
+- 401: Unauthorized access
+- 403: User trying to access another user's task
+- 404: Task not found
+
+### PUT /api/users/{user_id}/tasks/{task_id}
+**Description**: Update a specific task for a user
+**Path Parameters**:
+- `user_id`: ID of the user
+- `task_id`: ID of the task to update
+**Request**:
+```json
+{
+  "title": "Updated task title",
+  "description": "Updated task description",
+  "is_completed": true
+}
+```
+**Response**:
+- 200: Task updated successfully
+```json
+{
+  "id": 1,
+  "user_id": "uuid-string",
+  "title": "Updated task title",
+  "description": "Updated task description",
+  "is_completed": true,
+  "created_at": "2025-12-31T10:00:00Z",
+  "updated_at": "2025-12-31T11:00:00Z"
+}
+```
+- 400: Invalid input data
+- 401: Unauthorized access
+- 403: User trying to access another user's task
+- 404: Task not found
+
+### DELETE /api/users/{user_id}/tasks/{task_id}
+**Description**: Delete a specific task for a user
+**Path Parameters**:
+- `user_id`: ID of the user
+- `task_id`: ID of the task to delete
+**Response**:
+- 200: Task deleted successfully
+```json
+{
+  "message": "Task deleted successfully"
+}
+```
+- 401: Unauthorized access
+- 403: User trying to access another user's task
+- 404: Task not found
+
+### PATCH /api/users/{user_id}/tasks/{task_id}/complete
+**Description**: Toggle completion status of a specific task
+**Path Parameters**:
+- `user_id`: ID of the user
+- `task_id`: ID of the task to update
+**Request**:
+```json
+{
+  "is_completed": true
+}
+```
+**Response**:
+- 200: Task completion status updated successfully
+```json
+{
+  "id": 1,
+  "user_id": "uuid-string",
+  "title": "Task title",
+  "description": "Task description",
+  "is_completed": true,
+  "created_at": "2025-12-31T10:00:00Z",
+  "updated_at": "2025-12-31T11:00:00Z"
+}
+```
+- 400: Invalid input data
+- 401: Unauthorized access
+- 403: User trying to access another user's task
+- 404: Task not found
+
+## Error Response Format
+
+All error responses follow this format:
+```json
+{
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human-readable error message",
+    "details": "Additional error details (optional)"
+  }
+}
+```
+
+## Common HTTP Status Codes
+
+- 200: Success
+- 201: Created
+- 400: Bad Request (validation error)
+- 401: Unauthorized (authentication required)
+- 403: Forbidden (insufficient permissions)
+- 404: Not Found
+- 409: Conflict (e.g., duplicate email)
+- 500: Internal Server Error

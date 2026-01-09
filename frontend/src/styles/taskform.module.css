@@ -1,0 +1,158 @@
+/* TaskForm Component Styles */
+.taskFormContainer {
+  background: linear-gradient(135deg, #4f46e5 0%, #7e22ce 100%);
+  border-radius: 0.75rem;
+  padding: 0.25rem;
+}
+
+.taskFormWrapper {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.taskFormTitle {
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.taskFormTitleIcon {
+  margin-right: 0.5rem;
+  color: #4f46e5;
+}
+
+.formContainer {
+  width: 100%;
+}
+
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.formLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: #1f2937;
+  transition: all 0.2s ease-in-out;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.formInputError {
+  border-color: #ef4444;
+}
+
+.formTextarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: #1f2937;
+  resize: vertical;
+  min-height: 80px;
+  transition: all 0.2s ease-in-out;
+}
+
+.formTextarea:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.submitButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: white;
+  background: linear-gradient(90deg, #4f46e5 0%, #7e22ce 100%);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.submitButton:hover {
+  transform: translateY(-0.125rem);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(90deg, #4338ca 0%, #6d28d9 100%);
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.submitButtonIcon {
+  margin-right: 0.5rem;
+}
+
+.errorMessage {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  margin-bottom: 1rem;
+}
+
+.errorMessageIcon {
+  margin-right: 0.5rem;
+}
+
+.successMessage {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #16a34a;
+  margin-bottom: 1rem;
+}
+
+.successMessageIcon {
+  margin-right: 0.5rem;
+}
+
+.messageContent {
+  flex: 1;
+}
+
+.messageTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.messageText {
+  font-size: 0.875rem;
+}

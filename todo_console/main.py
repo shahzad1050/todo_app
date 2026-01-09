@@ -9,10 +9,59 @@ It provides a menu-driven interface for managing tasks.
 from todo_console.todo import TaskManager
 
 
+def authenticate_user():
+    """Handle user authentication."""
+    print("Welcome to the CLI Todo Application!")
+    print("1. Login")
+    print("2. Sign up")
+    print("3. Continue as guest (limited functionality)")
+
+    auth_choice = input("Choose an option (1-3): ").strip()
+
+    if auth_choice == "1":  # Login
+        email = input("Enter email: ").strip()
+        password = input("Enter password: ").strip()
+
+        task_manager = TaskManager()
+        try:
+            user_data = task_manager.login(email, password)
+            print(f"Login successful! Welcome, {user_data.get('first_name', 'User')}!")
+            return task_manager
+        except Exception as e:
+            print(f"Login failed: {e}")
+            return authenticate_user()  # Retry
+
+    elif auth_choice == "2":  # Sign up
+        email = input("Enter email: ").strip()
+        password = input("Enter password: ").strip()
+        first_name = input("Enter first name (optional): ").strip()
+        if not first_name:
+            first_name = None
+        last_name = input("Enter last name (optional): ").strip()
+        if not last_name:
+            last_name = None
+
+        task_manager = TaskManager()
+        try:
+            user_data = task_manager.signup(email, password, first_name, last_name)
+            print(f"Sign up successful! Welcome, {user_data.get('first_name', 'User')}!")
+            return task_manager
+        except Exception as e:
+            print(f"Sign up failed: {e}")
+            return authenticate_user()  # Retry
+
+    elif auth_choice == "3":  # Guest
+        print("Continuing as guest. Some functionality may be limited.")
+        return TaskManager()
+
+    else:
+        print("Invalid choice. Defaulting to guest mode.")
+        return TaskManager()
+
+
 def main():
     """Main function to run the CLI Todo application."""
-    print("Welcome to the CLI Todo Application!")
-    task_manager = TaskManager()
+    task_manager = authenticate_user()
 
     while True:
         print("\n--- Todo Application Menu ---")
@@ -82,13 +131,6 @@ def update_task_ui(task_manager):
         print("Invalid task ID. Please enter a number.")
         return
 
-    # Check if task exists
-    tasks = task_manager.view_tasks()
-    task_exists = any(task.id == task_id for task in tasks)
-    if not task_exists:
-        print(f"Task with ID {task_id} not found.")
-        return
-
     new_title = input("Enter new title (or press Enter to skip): ").strip()
     new_description = input("Enter new description (or press Enter to skip): ").strip()
 
@@ -113,13 +155,6 @@ def delete_task_ui(task_manager):
         print("Invalid task ID. Please enter a number.")
         return
 
-    # Check if task exists
-    tasks = task_manager.view_tasks()
-    task_exists = any(task.id == task_id for task in tasks)
-    if not task_exists:
-        print(f"Task with ID {task_id} not found.")
-        return
-
     confirm = input(f"Are you sure you want to delete task {task_id}? (y/N): ").strip().lower()
     if confirm in ['y', 'yes']:
         try:
@@ -137,13 +172,6 @@ def mark_task_complete_ui(task_manager):
         task_id = int(input("Enter task ID to mark complete: "))
     except ValueError:
         print("Invalid task ID. Please enter a number.")
-        return
-
-    # Check if task exists
-    tasks = task_manager.view_tasks()
-    task_exists = any(task.id == task_id for task in tasks)
-    if not task_exists:
-        print(f"Task with ID {task_id} not found.")
         return
 
     try:
