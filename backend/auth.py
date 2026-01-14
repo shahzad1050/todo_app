@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlmodel import Session, select
-from models import User, UserBase
-from database import get_session
-from utils import verify_password, get_password_hash, create_access_token, verify_token
+from .models import User, UserBase
+from .database import get_session
+from .utils import verify_password, get_password_hash, create_access_token, verify_token
 from pydantic import BaseModel
 from typing import Optional
 import uuid

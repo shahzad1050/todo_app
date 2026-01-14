@@ -1,5 +1,5 @@
 from sqlmodel import create_engine, Session, SQLModel
-from models import User, Task  # Import models to register them with SQLModel
+from .models import User, Task  # Import models to register them with SQLModel
 import os
 from dotenv import load_dotenv
 
