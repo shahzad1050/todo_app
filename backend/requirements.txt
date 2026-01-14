@@ -9,3 +9,4 @@ alembic==1.13.1
 pytz==2023.3.post1
 cryptography
 email-validator==2.1.0
+psycopg2-binary
