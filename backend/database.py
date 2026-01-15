@@ -6,18 +6,32 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Get database URL from environment - default to SQLite for development
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./todo_app.db")
+# Get database URL from environment - Vercel recommends using PostgreSQL for production
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_LDwYj29VvHhq@ep-winter-bread-a44joluf-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
 
-# Create the database engine with connection pooling and proper settings
-engine = create_engine(
-    DATABASE_URL,
-    echo=True,
-    pool_pre_ping=True,  # Verify connections before use
-    pool_recycle=300,    # Recycle connections after 5 minutes
-    pool_size=10,        # Number of connection pools
-    max_overflow=20      # Maximum number of connections beyond pool_size
-)
+# For serverless environments, use connection parameters suitable for serverless
+if DATABASE_URL.startswith("postgres"):
+    # PostgreSQL connection for production
+    engine = create_engine(
+        DATABASE_URL,
+        echo=bool(os.getenv("DEBUG", False)),
+        pool_pre_ping=True,
+        pool_recycle=300,
+        pool_size=5,
+        max_overflow=10,
+        # For serverless, we want shorter-lived connections
+        connect_args={
+            "connect_timeout": 10,
+        }
+    )
+else:
+    # Fallback to SQLite for local development
+    engine = create_engine(
+        DATABASE_URL,
+        echo=bool(os.getenv("DEBUG", False)),
+        # For SQLite in serverless, we shouldn't use connection pooling
+        # but this is just for local testing
+    )
 
 def create_db_and_tables():
     """Create database tables for all models"""

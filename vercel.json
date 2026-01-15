@@ -5,7 +5,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://your-deployed-python-backend.herokuapp.com/api/$1"
+      "destination": "https://backend-xi-nine-99.vercel.app/api/$1"
     }
   ]
 }
