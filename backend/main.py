@@ -13,7 +13,9 @@ load_dotenv()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize the database and create tables
-    create_db_and_tables()
+    # In serverless environments, this might not work as expected
+    # So we'll just yield without creating tables on startup
+    # We'll handle table creation per-request instead
     yield
 
 # Create FastAPI app

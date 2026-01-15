@@ -5,7 +5,7 @@ import os
 # Add the current directory to the Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from api import handler
+from api_test import handler
 
 def main(event, context):
     return handler(event, context)
@@ -13,5 +13,5 @@ def main(event, context):
 # For local testing
 if __name__ == "__main__":
     import uvicorn
-    from main import app
+    from main_test import app
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))

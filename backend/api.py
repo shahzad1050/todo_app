@@ -1,9 +1,13 @@
 # Vercel-compatible entry point for FastAPI backend
+import os
 from mangum import Mangum
 from .main import app
 
-# Create the Mangum adapter for serverless compatibility
-handler = Mangum(app, lifespan="off")
+# Disable lifespan handling for serverless environments to avoid initialization issues
+if os.getenv("VERCEL_ENV"):  # Vercel environment
+    handler = Mangum(app, lifespan="off")
+else:  # Local development
+    handler = Mangum(app)
 
 # For local testing
 if __name__ == "__main__":
