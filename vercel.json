@@ -1,10 +1,11 @@
 {
   "version": 2,
   "framework": "nextjs",
+  "rootDirectory": "frontend",
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://your-python-backend-url-here.com/:path*"
+      "source": "/api/(.*)",
+      "destination": "https://your-deployed-python-backend.herokuapp.com/api/$1"
     }
   ]
 }
