@@ -40,7 +40,21 @@ export const signup = async (userData: SignupData): Promise<AuthResponse> => {
       }),
     });
 
-    const result = await response.json();
+    let result;
+    const contentType = response.headers.get('content-type');
+
+    if (contentType && contentType.includes('application/json')) {
+      result = await response.json();
+    } else {
+      // Handle non-JSON responses (like HTML error pages)
+      const text = await response.text();
+      try {
+        result = JSON.parse(text);
+      } catch {
+        // If response is not JSON, create a generic error object
+        result = { detail: `Server error: ${response.status} ${response.statusText}` };
+      }
+    }
 
     if (response.ok) {
       // Store user info in localStorage (in a real app, you would also store the token)
@@ -48,7 +62,7 @@ export const signup = async (userData: SignupData): Promise<AuthResponse> => {
       localStorage.setItem('user_email', result.email);
       return { success: true, message: result.message, id: result.id, email: result.email };
     } else {
-      return { success: false, message: result.detail || 'Signup failed' };
+      return { success: false, message: result.detail || `Signup failed: ${response.status} ${response.statusText}` };
     }
   } catch (error) {
     console.error('Signup error:', error);
@@ -70,7 +84,21 @@ export const login = async (email: string, password: string): Promise<AuthRespon
       }),
     });
 
-    const result = await response.json();
+    let result;
+    const contentType = response.headers.get('content-type');
+
+    if (contentType && contentType.includes('application/json')) {
+      result = await response.json();
+    } else {
+      // Handle non-JSON responses (like HTML error pages)
+      const text = await response.text();
+      try {
+        result = JSON.parse(text);
+      } catch {
+        // If response is not JSON, create a generic error object
+        result = { detail: `Server error: ${response.status} ${response.statusText}` };
+      }
+    }
 
     if (response.ok) {
       // Store user info and token in localStorage
@@ -87,7 +115,7 @@ export const login = async (email: string, password: string): Promise<AuthRespon
         access_token: result.access_token
       };
     } else {
-      return { success: false, message: result.detail || 'Login failed' };
+      return { success: false, message: result.detail || `Login failed: ${response.status} ${response.statusText}` };
     }
   } catch (error) {
     console.error('Login error:', error);
