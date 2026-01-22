@@ -1,6 +1,8 @@
 // Authentication utility functions
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? '/api' : 'http://localhost:8000');
+// For GitHub Pages deployment, we need to call the backend directly
+// Update this URL to point to your deployed backend server
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'; // Replace with your actual backend URL when deploying
 
 interface SignupData {
   email: string;

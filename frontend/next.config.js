@@ -1,12 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Remove static export for Vercel deployment
+  // Enable static export for GitHub Pages deployment
+  output: 'export',
   images: {
     unoptimized: true,
   },
-  // Enable API routes for backend integration
+  trailingSlash: true,
+  // Disable experimental features not compatible with static export
   experimental: {
-    serverComponentsExternalPackages: ['sqlmodel', 'fastapi'],
+    // Remove server components external packages for static export
   },
 };
 
