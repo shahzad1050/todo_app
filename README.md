@@ -17,3 +17,9 @@ This Todo application consists of a frontend and a backend. For full functionali
 ## Configuration
 
 To connect the frontend to your backend server, ensure the `NEXT_PUBLIC_API_URL` environment variable in `frontend/.env.local` points to your backend server URL (default is `http://localhost:8000`).
+
+## Git Configuration
+
+This project is no longer linked to any remote repository. To start fresh with git:
+- Run `git init` to initialize a new local repository
+- Run `git remote remove origin` to remove the remote origin
