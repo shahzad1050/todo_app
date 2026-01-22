@@ -39,10 +39,15 @@ except ImportError as e:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize the database and create tables
-    # In serverless environments, this might not work as expected
-    # So we'll just yield without creating tables on startup
-    # We'll handle table creation per-request instead
     logger.info("Application lifespan started")
+    try:
+        # Create database tables for all registered models
+        from sqlmodel import SQLModel
+        from database import engine
+        SQLModel.metadata.create_all(bind=engine)
+        logger.info("Database tables created successfully")
+    except Exception as e:
+        logger.error(f"Error creating database tables: {e}")
     yield
     logger.info("Application lifespan ended")
 

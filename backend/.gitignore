@@ -1,5 +1,4 @@
-.vercel
-.env
+# Ignore environment variables files
 *.env
 .env.local
 .env.production
@@ -14,3 +13,4 @@ htmlcov/
 .idea/
 .DS_Store
 todo_app.db
+.env*.local

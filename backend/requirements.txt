@@ -7,9 +7,8 @@ better-exceptions==0.3.3
 python-dotenv==1.0.0
 alembic==1.13.1
 pytz==2023.3.post1
-cryptography
+cryptography>=41.0.0
 email-validator==2.1.0
 psycopg2-binary
-mangum>=0.17.0
 passlib[bcrypt]>=1.7.0
 python-jose[cryptography]>=3.3.0

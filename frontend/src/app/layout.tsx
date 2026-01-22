@@ -1,5 +1,4 @@
 import './globals.css';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata = {
   title: 'TaskMaster - Your Task Management Solution',
@@ -18,7 +17,6 @@ export default function RootLayout({
       </head>
       <body>
         {children}
-        <SpeedInsights />
       </body>
     </html>
   )

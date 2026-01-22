@@ -1,5 +1,9 @@
 import logging
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -29,6 +33,7 @@ if not DATABASE_URL:
 try:
     if DATABASE_URL and DATABASE_URL.startswith("postgres"):
         # PostgreSQL connection for production with serverless-friendly settings
+        # Updated for Neon database compatibility
         engine = create_engine(
             DATABASE_URL,
             echo=bool(os.getenv("DEBUG", False)),
@@ -38,10 +43,10 @@ try:
             max_overflow=2,  # Minimal overflow for serverless
             connect_args={
                 "connect_timeout": 15,
-                "command_timeout": 15,
+                "application_name": "todo-app",  # For Neon connection monitoring
             }
         )
-        logger.info("Initialized PostgreSQL engine")
+        logger.info("Initialized PostgreSQL engine for Neon")
     elif DATABASE_URL and DATABASE_URL.startswith("sqlite"):
         # SQLite for local development
         engine = create_engine(
