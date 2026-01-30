@@ -10,7 +10,7 @@ export default function Home() {
   const [userId, setUserId] = useState('user123');
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState(null);
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -30,15 +30,15 @@ export default function Home() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/users/${userId}/chat`, {
+      const formData = new FormData();
+      formData.append('message', inputValue);
+      if (conversationId) {
+        formData.append('conversation_id', conversationId);
+      }
+
+      const response = await fetch(`/api/chat/${userId}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: inputValue,
-          conversation_id: conversationId || null
-        })
+        body: formData
       });
 
       const data = await response.json();
