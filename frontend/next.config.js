@@ -1,15 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable static export for GitHub Pages deployment
-  output: 'export',
+  // Removed static export to support API rewrites
   images: {
     unoptimized: true,
   },
   trailingSlash: true,
-  // Disable experimental features not compatible with static export
-  experimental: {
-    // Remove server components external packages for static export
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://127.0.0.1:8000/api/:path*',  // Forward /api/* to backend's /api/*
+      },
+    ]
   },
 };
+
+module.exports = nextConfig;
 
 module.exports = nextConfig;

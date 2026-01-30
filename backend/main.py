@@ -3,6 +3,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 import os
+import sys
+from pathlib import Path
+
+# Add the backend directory to the Python path for imports
+backend_dir = Path(__file__).parent.absolute()
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -10,25 +17,27 @@ logger = logging.getLogger(__name__)
 
 # Import modules with error handling
 try:
-    from database import create_db_and_tables
+    from core.database import engine
     logger.info("Successfully imported database module")
 except ImportError as e:
     logger.error(f"Error importing database module: {e}")
-    # Define a placeholder function
-    def create_db_and_tables():
-        logger.warning("Database module not available, using placeholder")
+    # Define a placeholder variable
+    engine = None
+
+# Skip model imports to get the server running
+logger.info("Skipping model imports temporarily to start server")
 
 try:
-    from api import tasks
-    logger.info("Successfully imported tasks API module")
+    from api.chat import router as chat_router
+    logger.info("Successfully imported chat API module")
 except ImportError as e:
-    logger.error(f"Error importing tasks API module: {e}")
-    # Define a placeholder module
-    class tasks:
-        router = None
+    logger.error(f"Error importing chat API module: {e}")
+    # Define a placeholder router
+    from fastapi import APIRouter
+    chat_router = APIRouter()
 
 try:
-    from auth import auth_router
+    from api.auth import router as auth_router
     logger.info("Successfully imported auth module")
 except ImportError as e:
     logger.error(f"Error importing auth module: {e}")
@@ -36,16 +45,27 @@ except ImportError as e:
     from fastapi import APIRouter
     auth_router = APIRouter()
 
+try:
+    from api.tasks import router as tasks_router
+    logger.info("Successfully imported tasks API module")
+except ImportError as e:
+    logger.error(f"Error importing tasks API module: {e}")
+    # Define a placeholder router
+    from fastapi import APIRouter
+    tasks_router = APIRouter()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize the database and create tables
     logger.info("Application lifespan started")
     try:
-        # Create database tables for all registered models
-        from sqlmodel import SQLModel
-        from database import engine
-        SQLModel.metadata.create_all(bind=engine)
-        logger.info("Database tables created successfully")
+        if engine:
+            # Create database tables for all registered models
+            from sqlmodel import SQLModel
+            SQLModel.metadata.create_all(bind=engine)
+            logger.info("Database tables created successfully")
+        else:
+            logger.warning("Database engine not available, skipping table creation")
     except Exception as e:
         logger.error(f"Error creating database tables: {e}")
     yield
@@ -54,8 +74,8 @@ async def lifespan(app: FastAPI):
 # Create FastAPI app
 try:
     app = FastAPI(
-        title="Todo Web Application API",
-        description="RESTful API for the Todo Web Application with user authentication and task management",
+        title="AI-Powered Todo Chatbot API",
+        description="AI-powered Todo chatbot API that allows users to manage tasks using natural language",
         version="1.0.0",
         lifespan=lifespan
     )
@@ -73,26 +93,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API routers only if they exist
-if tasks.router:
-    app.include_router(tasks.router, prefix="/api")
-    logger.info("Tasks router included")
-else:
-    logger.warning("Tasks router not available")
-
-if auth_router:
-    app.include_router(auth_router, prefix="/api/auth")
-    logger.info("Auth router included")
-else:
-    logger.warning("Auth router not available")
+# Include API routers
+app.include_router(chat_router, prefix="/api", tags=["chat"])
+app.include_router(tasks_router, prefix="/api", tags=["tasks"])
+app.include_router(auth_router, prefix="/auth", tags=["auth"])
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the Todo Web Application API"}
+    return {"message": "AI-Powered Todo Chatbot API"}
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "message": "API is running"}
+    return {"status": "healthy", "message": "AI-powered Todo Chatbot API is running"}
 
 @app.get("/favicon.ico", include_in_schema=False)
 def favicon():
@@ -102,7 +114,7 @@ def favicon():
         # Return a minimal transparent favicon to avoid 404 errors
         transparent_favicon = base64.b64decode(
             "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA"
-            "B3RJTUUH5AgQDC421wKJLgAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBk"
+            "B3RJTUUH5AgQDC421wKJLgAAAB1pVFh0Q290bWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBk"
             "LmUHAAAAFklEQVQ4y2P8//8/AzYwMjIyAAAc/Qv/rkZB4QAAAABJRU5ErkJggg=="
         )
         return Response(content=transparent_favicon, media_type="image/x-icon")
