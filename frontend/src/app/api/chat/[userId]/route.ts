@@ -9,7 +9,7 @@ export async function POST(request: NextRequest, { params }: { params: { userId:
     const message = formData.get('message') as string;
     const conversationId = formData.get('conversation_id') as string | null;
 
-    // Determine the backend URL based on environment
+    // Backend URL - use environment variable or default to local backend
     const backendUrl = process.env.BACKEND_API_URL || 'http://127.0.0.1:8001';
 
     // Construct the backend API URL
@@ -29,6 +29,8 @@ export async function POST(request: NextRequest, { params }: { params: { userId:
     });
 
     if (!backendResponse.ok) {
+      const errorText = await backendResponse.text();
+      console.error(`Backend API error: ${backendResponse.status} - ${errorText}`);
       throw new Error(`Backend API error: ${backendResponse.status}`);
     }
 
