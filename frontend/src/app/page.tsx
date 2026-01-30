@@ -36,7 +36,9 @@ export default function Home() {
         formData.append('conversation_id', conversationId);
       }
 
-      const response = await fetch(`/api/chat/${userId}`, {
+      // Use environment variable for backend API URL
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || `/api/chat`;
+      const response = await fetch(`${backendUrl}/${userId}`, {
         method: 'POST',
         body: formData
       });

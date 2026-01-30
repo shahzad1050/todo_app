@@ -5,16 +5,9 @@ const nextConfig = {
     unoptimized: true,
   },
   trailingSlash: true,
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://127.0.0.1:8000/api/:path*',  // Forward /api/* to backend's /api/*
-      },
-    ]
+  env: {
+    BACKEND_API_URL: process.env.BACKEND_API_URL || 'http://127.0.0.1:8001',
   },
 };
-
-module.exports = nextConfig;
 
 module.exports = nextConfig;
