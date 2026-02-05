@@ -1,8 +1,10 @@
+import { AuthProvider } from '@/components/AuthProvider';
 import './globals.css';
+import type { Metadata } from 'next';
 
-export const metadata = {
-  title: 'TaskMaster - Your Task Management Solution',
-  description: 'Manage your tasks efficiently with our intuitive dashboard',
+export const metadata: Metadata = {
+  title: 'TaskMaster - Your AI-Powered Task Management Solution',
+  description: 'Manage your tasks efficiently with our intuitive dashboard and AI assistant',
 }
 
 export default function RootLayout({
@@ -12,11 +14,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-      </head>
-      <body>
-        {children}
+      <body className="antialiased">
+        <AuthProvider>
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+            {children}
+          </div>
+        </AuthProvider>
       </body>
     </html>
   )

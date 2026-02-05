@@ -1,0 +1,19 @@
+{
+  "name": "ai-todo-chatbot-backend",
+  "version": "1.0.0",
+  "description": "AI-powered Todo chatbot backend API",
+  "main": "api_handler.py",
+  "scripts": {
+    "dev": "python -c \"from api_handler import app; import uvicorn; uvicorn.run(app, host='127.0.0.1', port=8000)\"",
+    "start": "python -c \"from api_handler import app; import uvicorn; uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 8000)))\"",
+    "vercel-build": "pip install -r requirements.txt"
+  },
+  "keywords": ["fastapi", "todo", "chatbot", "ai", "vercel", "neon"],
+  "author": "AI Todo Chatbot",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

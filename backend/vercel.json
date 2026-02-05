@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "main.py",
+      "src": "api_handler.py",
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "50mb",
@@ -13,7 +13,12 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "main.py"
+      "dest": "api_handler.py"
     }
-  ]
+  ],
+  "env": {
+    "DATABASE_URL": "$NEON_DATABASE_URL",
+    "SECRET_KEY": "$SECRET_KEY",
+    "ALLOWED_ORIGINS": "$ALLOWED_ORIGINS"
+  }
 }

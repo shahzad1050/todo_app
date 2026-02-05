@@ -13,8 +13,8 @@ if backend_path not in sys.path:
 
 from core.database import engine
 
-# Import models - using direct import since models directory was removed
-from models import Task, TaskBase
+# Import models - importing directly from individual files
+from ..models.task import Task, TaskBase
 from crud.task import get_tasks_by_user, create_task, update_task as update_task_crud, delete_task as delete_task_crud, toggle_task_completion
 from crud.conversation import create_conversation
 from crud.message import create_message, get_messages_by_conversation
@@ -34,7 +34,8 @@ def add_task_tool(user_id: str, title: str, description: str = "") -> Dict[str, 
         task_base = TaskBase(
             title=title,
             description=description,
-            user_id=UUID(user_id)
+            completed=False,  # Set default completion status
+            user_id=user_id  # Keep as string
         )
         task = create_task(session, task_base)
 
@@ -49,7 +50,7 @@ def list_tasks_tool(user_id: str, status: str = "all") -> Dict[str, List[Dict[st
     List tasks for a user with optional status filter
     """
     with Session(engine) as session:
-        tasks = get_tasks_by_user(session, UUID(user_id), status)
+        tasks = get_tasks_by_user(session, user_id, status)
 
         task_list = []
         for task in tasks:
@@ -57,7 +58,7 @@ def list_tasks_tool(user_id: str, status: str = "all") -> Dict[str, List[Dict[st
                 "id": str(task.id),
                 "title": task.title,
                 "description": task.description,
-                "completed": task.is_completed,
+                "completed": task.completed,  # Changed from is_completed to completed
                 "created_at": task.created_at.isoformat(),
                 "updated_at": task.updated_at.isoformat()
             })
@@ -72,7 +73,7 @@ def update_task_tool(user_id: str, task_id: str, title: str = None, description:
     """
     with Session(engine) as session:
         # We need to fetch the existing task first to validate user ownership
-        existing_task = session.get(Task, UUID(task_id))
+        existing_task = session.get(Task, int(task_id))
         if not existing_task or str(existing_task.user_id) != user_id:
             return {
                 "task_id": task_id,
@@ -91,11 +92,11 @@ def update_task_tool(user_id: str, task_id: str, title: str = None, description:
         task_update = TaskBase(
             title=update_data.get('title', existing_task.title),
             description=update_data.get('description', existing_task.description),
-            is_completed=existing_task.is_completed,
-            user_id=UUID(user_id)
+            completed=existing_task.completed,  # Changed from is_completed to completed
+            user_id=user_id  # Keep as string
         )
 
-        updated_task = update_task_crud(session, UUID(task_id), task_update)
+        updated_task = update_task_crud(session, int(task_id), task_update)
 
         if updated_task:
             return {
@@ -117,7 +118,7 @@ def delete_task_tool(user_id: str, task_id: str) -> Dict[str, Any]:
     """
     with Session(engine) as session:
         # We need to fetch the existing task first to validate user ownership
-        existing_task = session.get(Task, UUID(task_id))
+        existing_task = session.get(Task, int(task_id))
         if not existing_task or str(existing_task.user_id) != user_id:
             return {
                 "task_id": task_id,
@@ -125,7 +126,7 @@ def delete_task_tool(user_id: str, task_id: str) -> Dict[str, Any]:
                 "message": "Task not found or access denied"
             }
 
-        success = delete_task_crud(session, UUID(task_id))
+        success = delete_task_crud(session, int(task_id))
 
         if success:
             return {
@@ -146,7 +147,7 @@ def complete_task_tool(user_id: str, task_id: str) -> Dict[str, Any]:
     """
     with Session(engine) as session:
         # We need to fetch the existing task first to validate user ownership
-        existing_task = session.get(Task, UUID(task_id))
+        existing_task = session.get(Task, int(task_id))
         if not existing_task or str(existing_task.user_id) != user_id:
             return {
                 "task_id": task_id,
@@ -155,12 +156,12 @@ def complete_task_tool(user_id: str, task_id: str) -> Dict[str, Any]:
                 "message": "Task not found or access denied"
             }
 
-        updated_task = toggle_task_completion(session, UUID(task_id))
+        updated_task = toggle_task_completion(session, int(task_id))
 
         if updated_task:
             return {
                 "task_id": str(updated_task.id),
-                "completed": updated_task.is_completed,
+                "completed": updated_task.completed,  # Changed from is_completed to completed
                 "title": updated_task.title,
                 "updated_at": updated_task.updated_at.isoformat()
             }

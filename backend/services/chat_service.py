@@ -1,5 +1,4 @@
 from typing import Dict, Any, List
-from uuid import UUID
 from sqlmodel import Session
 import sys
 import os
@@ -11,12 +10,13 @@ if backend_path not in sys.path:
     sys.path.insert(0, backend_path)
 
 from core.database import engine
-from models.message import MessageBase, RoleEnum
-from models.conversation import ConversationBase
+from ..models.message import Message, MessageBase, RoleEnum
+from ..models.conversation import ConversationBase
 from crud.message import create_message, get_messages_by_conversation
 from crud.conversation import create_conversation, get_conversation_by_id
 from services.ai_agent import AIAgent
 from datetime import datetime
+import uuid
 
 class ChatService:
     """
@@ -34,23 +34,25 @@ class ChatService:
             # Create or retrieve conversation
             if conversation_id:
                 try:
-                    conv_uuid = UUID(conversation_id)
-                    existing_conv = get_conversation_by_id(session, conv_uuid)
+                    # Check if conversation exists and belongs to user
+                    existing_conv = get_conversation_by_id(session, conversation_id)
                     if not existing_conv or str(existing_conv.user_id) != user_id:
                         raise ValueError("Conversation not found or access denied")
                     conversation = existing_conv
-                except ValueError:
+                except Exception:
                     raise ValueError("Invalid conversation ID format")
             else:
                 # Create new conversation
-                conv_base = ConversationBase(user_id=UUID(user_id))
+                # Generate a new conversation ID
+                conversation_id = str(uuid.uuid4())
+                conv_base = ConversationBase(user_id=user_id)  # Use string user_id
                 conversation = create_conversation(session, conv_base)
                 conversation_id = str(conversation.id)
 
             # Save user message
             user_message = MessageBase(
-                conversation_id=UUID(conversation_id),
-                user_id=UUID(user_id),
+                conversation_id=conversation_id,
+                user_id=user_id,  # Use string user_id
                 role=RoleEnum.user,
                 content=message
             )
@@ -61,8 +63,8 @@ class ChatService:
 
             # Save AI response
             ai_message = MessageBase(
-                conversation_id=UUID(conversation_id),
-                user_id=UUID(user_id),  # AI responses are associated with the user
+                conversation_id=conversation_id,
+                user_id=user_id,  # Use string user_id
                 role=RoleEnum.assistant,
                 content=ai_result["response"]
             )
@@ -86,14 +88,13 @@ class ChatService:
         """
         with Session(engine) as session:
             # Verify that the user owns this conversation
-            conv_uuid = UUID(conversation_id)
-            conversation = get_conversation_by_id(session, conv_uuid)
+            conversation = get_conversation_by_id(session, conversation_id)
 
             if not conversation or str(conversation.user_id) != user_id:
                 raise ValueError("Conversation not found or access denied")
 
             # Get all messages in the conversation
-            messages = get_messages_by_conversation(session, conv_uuid)
+            messages = get_messages_by_conversation(session, conversation_id)
 
             # Format messages for response
             formatted_messages = []
@@ -112,6 +113,6 @@ class ChatService:
         Create a new conversation and return its ID
         """
         with Session(engine) as session:
-            conv_base = ConversationBase(user_id=UUID(user_id))
+            conv_base = ConversationBase(user_id=user_id)  # Use string user_id
             conversation = create_conversation(session, conv_base)
             return str(conversation.id)

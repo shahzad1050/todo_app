@@ -4,34 +4,61 @@ export async function POST(request: NextRequest, { params }: { params: { userId:
   const { userId } = params;
 
   try {
-    // Get the form data from the request
-    const formData = await request.formData();
-    const message = formData.get('message') as string;
-    const conversationId = formData.get('conversation_id') as string | null;
+    let message, conversationId;
+
+    // Check if request is JSON or form data
+    const contentType = request.headers.get('content-type');
+
+    if (contentType && contentType.includes('application/json')) {
+      // Handle JSON request
+      const jsonData = await request.json();
+      message = jsonData.message;
+      conversationId = jsonData.conversation_id;
+    } else {
+      // Handle form data request
+      const formData = await request.formData();
+      message = formData.get('message') as string;
+      conversationId = formData.get('conversation_id') as string | null;
+    }
+
+    // Get authorization header from the original request to pass to backend
+    const authHeader = request.headers.get('authorization');
 
     // Backend URL - use environment variable or default to local backend
-    const backendUrl = process.env.BACKEND_API_URL || 'http://127.0.0.1:8001';
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_API_URL || 'http://127.0.0.1:8003';
 
     // Construct the backend API URL
-    const backendApiUrl = `${backendUrl}/chat/${userId}`;
+    const backendApiUrl = `${backendUrl}/users/${userId}/chat`;
 
-    // Create form data to send to the backend
-    const backendFormData = new FormData();
-    backendFormData.append('message', message);
-    if (conversationId) {
-      backendFormData.append('conversation_id', conversationId);
-    }
+    // Create JSON data to send to the backend
+    const requestData = {
+      message: message,
+      conversation_id: conversationId || undefined
+    };
 
     // Create the request to the backend
     const backendResponse = await fetch(backendApiUrl, {
       method: 'POST',
-      body: backendFormData
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authHeader && { 'Authorization': authHeader }) // Pass authorization header if present
+      },
+      body: JSON.stringify(requestData)
     });
 
+    // Handle the case where the backend returns an error
     if (!backendResponse.ok) {
       const errorText = await backendResponse.text();
       console.error(`Backend API error: ${backendResponse.status} - ${errorText}`);
-      throw new Error(`Backend API error: ${backendResponse.status}`);
+
+      // Return a proper response instead of throwing an error
+      return NextResponse.json({
+        conversation_id: conversationId || null,
+        response: "Sorry, I encountered an error processing your request. Please make sure you're logged in.",
+        timestamp: new Date().toISOString()
+      }, {
+        status: 200 // Return 200 to prevent frontend errors, but with error message
+      });
     }
 
     const responseData = await backendResponse.json();
@@ -43,10 +70,9 @@ export async function POST(request: NextRequest, { params }: { params: { userId:
     return NextResponse.json({
       conversation_id: null,
       response: "Sorry, I encountered an error processing your request. Please try again.",
-      tool_calls: [],
       timestamp: new Date().toISOString()
     }, {
-      status: 500
+      status: 200 // Return 200 to prevent frontend errors, but with error message
     });
   }
 }

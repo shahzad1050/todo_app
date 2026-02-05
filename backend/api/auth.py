@@ -68,6 +68,45 @@ async def register(user_data: UserRegistration) -> Dict[str, Any]:
         "token_type": "bearer"
     }
 
+
+# Add an alias endpoint for signup to maintain compatibility with frontend
+@router.post("/signup")
+async def signup_alias(user_data: UserRegistration) -> Dict[str, Any]:
+    """
+    Register a new user (alias for /register to maintain frontend compatibility)
+    """
+    # Check if user already exists
+    if user_data.username in users_db:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already registered"
+        )
+
+    # Create new user
+    user_id = str(uuid.uuid4())
+    hashed_password = get_password_hash(user_data.password)
+
+    users_db[user_data.username] = {
+        "id": user_id,
+        "username": user_data.username,
+        "email": user_data.email,
+        "hashed_password": hashed_password
+    }
+
+    # Create access token
+    access_token_expires = timedelta(minutes=30)
+    access_token = create_access_token(
+        data={"sub": user_id, "username": user_data.username},
+        expires_delta=access_token_expires
+    )
+
+    return {
+        "message": "User registered successfully",
+        "user_id": user_id,
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
+
 @router.post("/login")
 async def login(user_data: UserLogin) -> Dict[str, Any]:
     """

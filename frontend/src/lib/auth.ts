@@ -2,7 +2,7 @@
 
 // For GitHub Pages deployment, we need to call the backend directly
 // Update this URL to point to your deployed backend server
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'; // Replace with your actual backend URL when deploying
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8005'; // Updated to point to integrated backend
 
 interface SignupData {
   email: string;
@@ -29,7 +29,12 @@ interface AuthResponse {
 // Signup function
 export const signup = async (userData: SignupData): Promise<AuthResponse> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
+    // Create a username from first and last name or use email as username
+    const username = userData.firstName && userData.lastName
+      ? `${userData.firstName.toLowerCase()}.${userData.lastName.toLowerCase()}`
+      : userData.email.split('@')[0];
+
+    const response = await fetch(`${API_BASE_URL}/auth/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -37,8 +42,8 @@ export const signup = async (userData: SignupData): Promise<AuthResponse> => {
       body: JSON.stringify({
         email: userData.email,
         password: userData.password,
-        first_name: userData.firstName,
-        last_name: userData.lastName,
+        first_name: userData.firstName || '',
+        last_name: userData.lastName || '',
       }),
     });
 
@@ -66,16 +71,19 @@ export const signup = async (userData: SignupData): Promise<AuthResponse> => {
     } else {
       return { success: false, message: result.detail || `Signup failed: ${response.status} ${response.statusText}` };
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Signup error:', error);
-    return { success: false, message: 'Network error occurred during signup' };
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      return { success: false, message: 'Unable to connect to the server. Please make sure the backend is running and check your network connection.' };
+    }
+    return { success: false, message: 'Network error occurred during signup. Please check your connection and try again.' };
   }
 };
 
 // Login function
 export const login = async (email: string, password: string): Promise<AuthResponse> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -119,9 +127,12 @@ export const login = async (email: string, password: string): Promise<AuthRespon
     } else {
       return { success: false, message: result.detail || `Login failed: ${response.status} ${response.statusText}` };
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Login error:', error);
-    return { success: false, message: 'Network error occurred during login' };
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      return { success: false, message: 'Unable to connect to the server. Please make sure the backend is running and check your network connection.' };
+    }
+    return { success: false, message: 'Network error occurred during login. Please check your connection and try again.' };
   }
 };
 

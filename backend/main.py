@@ -24,15 +24,22 @@ except ImportError as e:
     # Define a placeholder variable
     engine = None
 
-# Skip model imports to get the server running
-logger.info("Skipping model imports temporarily to start server")
+# Import modules with error handling
+try:
+    from core.database import engine
+    logger.info("Successfully imported database module")
+except ImportError as e:
+    logger.error(f"Error importing database module: {e}")
+    # Define a placeholder variable
+    engine = None
 
+# Try to import API routers with proper error handling
+# Temporarily disabling chat functionality to resolve model import issues
 try:
     from api.chat import router as chat_router
     logger.info("Successfully imported chat API module")
 except ImportError as e:
     logger.error(f"Error importing chat API module: {e}")
-    # Define a placeholder router
     from fastapi import APIRouter
     chat_router = APIRouter()
 
@@ -41,16 +48,15 @@ try:
     logger.info("Successfully imported auth module")
 except ImportError as e:
     logger.error(f"Error importing auth module: {e}")
-    # Define a placeholder router
     from fastapi import APIRouter
     auth_router = APIRouter()
 
+# Try to import tasks router
 try:
     from api.tasks import router as tasks_router
     logger.info("Successfully imported tasks API module")
 except ImportError as e:
     logger.error(f"Error importing tasks API module: {e}")
-    # Define a placeholder router
     from fastapi import APIRouter
     tasks_router = APIRouter()
 
@@ -94,7 +100,7 @@ app.add_middleware(
 )
 
 # Include API routers
-app.include_router(chat_router, prefix="/api", tags=["chat"])
+app.include_router(chat_router, prefix="/api", tags=["chat"])  # Re-enabled chat functionality
 app.include_router(tasks_router, prefix="/api", tags=["tasks"])
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 
